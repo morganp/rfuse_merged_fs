@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'rfuse_merged_fs'
+require 'rfuse_merged_fs_opts'
+
+options = RFuseMergedFSOpts.parse(ARGV)
+
+filesystem = RFuseMergedFS.new(options)
+FuseFS.set_root( filesystem )
+
+# Mount under a directory given on the command line.
+FuseFS.mount_under options.mountpoint
+FuseFS.run
+
