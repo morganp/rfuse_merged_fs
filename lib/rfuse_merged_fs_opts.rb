@@ -2,7 +2,7 @@ require 'optparse'
 require 'optparse/time'
 require 'ostruct'
 
-class RFuseSymbolicFSOpts
+class RFuseMergedFSOpts
 
 
     #
@@ -15,13 +15,13 @@ class RFuseSymbolicFSOpts
       # We set default values here.
       options = OpenStruct.new
       
-      options.verbose = false
+      options.verbose    = false
       options.mountpoint = ""
-      options.input   = ""
+      options.input      = Array.new
        
 
       opts = OptionParser.new do |opts|
-         opts.banner = "Usage: #{__FILE__} [options]"
+         opts.banner    = "Usage: #{__FILE__} [options]"
          opts.separator ""
          opts.separator "Common options:"
 
@@ -53,7 +53,7 @@ class RFuseSymbolicFSOpts
          end
          
          opts.on("--input N", String, "Folder FS will point to") do |n|
-            options.input = n
+            options.input << n
          end
          
         
@@ -61,9 +61,11 @@ class RFuseSymbolicFSOpts
       
       options.leftovers = opts.parse!(args)
 
-      if (options.mountpoint == "") and (options.input == "") and (options.leftovers.size==2)
-         options.mountpoint = options.leftovers[0]
-         options.input      = options.leftovers[1]
+      if (options.mountpoint == "") and (options.input.size == 0 ) and (options.leftovers.size>1)
+         # NB without the ! reverse returns a new array which is popped but
+         #   leftovers would stay the same length.
+         options.mountpoint = options.leftovers.reverse!.pop
+         options.input      = options.leftovers
       end
       return options
     end # parse()

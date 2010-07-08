@@ -1,9 +1,9 @@
 require "rubygems"
 require 'fusefs'
-require 'rfuse_symbolic_fs_opts'
+require 'rfuse_merged_fs_opts'
 
 
-class RFuseSymbolicFS
+class RFuseMergedFS
    # contents( path )
    # file?( path )
    # directory?( path )
@@ -77,8 +77,8 @@ end
 
 if $0 == __FILE__
 
-   options = RFuseSymbolicFSOpts.parse(ARGV)
-   filesystem = RFuseSymbolicFS.new( options )
+   options    = RFuseMergedFSOpts.parse(ARGV)
+   filesystem = RFuseMergedFS.new( options )
    FuseFS.set_root( filesystem )
 
    # Mount under a directory given on the command line.
