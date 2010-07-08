@@ -13,6 +13,7 @@ spec = Gem::Specification.new do |s|
    s.description  = "Virtual Filesystem Written in Ruby Fuse, which acts like a symbolic link"
    s.files        = ["bin/#{gem_name}"]
    s.files        += Dir.glob("lib/*")
+   s.files        += Dir.glob("spec/*")
    s.bindir       = 'bin'   
    s.executables  = [gem_name]
    s.has_rdoc     = false
