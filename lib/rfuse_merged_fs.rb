@@ -4,85 +4,103 @@ require 'rfuse_merged_fs_opts'
 
 
 class RFuseMergedFS
-   # contents( path )
-   # file?( path )
-   # directory?( path )
-   # read_file( path )
-   # size( path )
-   # 
-   # save
-   # touch( path )
-   # can_write?(path)
-   # write_to(path,body)
-   # 
-   # can_delete?(path)
-   # delete( path )
-   #
-   # can_mkdir?( path )
-   # mkdir( path )
-   # can_rmdir( path )
-   # rmdir( path )
-   # 
+  # http://rubydoc.info/gems/fusefs/0.7.0/FuseFS/MetaDir
+  # contents( path )
+  # file?( path )
+  # directory?( path )
+  # read_file( path )
+  # size( path )
+  # 
+  # save
+  # touch( path )
+  # can_write?(path)
+  # write_to(path,body)
+  # 
+  # can_delete?(path)
+  # delete( path )
+  #
+  # can_mkdir?( path )
+  # mkdir( path )
+  # can_rmdir( path )
+  # rmdir( path )
+  # 
+
+  def debug( msg )
+    if false
+      puts msg
+    end
+  end
+
+  def initialize( options )
+    debug "initialize( #{options.inspect} )"
+    @base_dir = options.input
+    debug "  @base_dir = #{@base_dir}"
+  end
+
+  def contents(path)
+    debug "contents( #{path} )"
+    n_path = File.expand_path( File.join( @base_dir, path ) )
+    debug "  Expanded path: #{n_path}"
 
 
+    Dir.chdir( n_path )  
+    files = Dir.glob('*')
 
-   def initialize( options )
-      @base_dir = options.input
-   end
+    debug files.inspect
+    #Added command to OS X Finder not to index.
+    #files << 'metadata_never_index'
 
-   def contents(path)
-      n_path = File.expand_path( @base_dir + path )
-      Dir.chdir(n_path)  
+    return files
+  end
 
-      files = Dir.glob('*')
-      #Added command to OS X Finder not to index.
-      files << 'metadata_never_index'
+  def file?( path )
+    debug "file?( #{path} )"
+    #If path ends with metadata_never_index it is a file
+    #if path =~ /metadata_never_index$/
+    #  return true
+    #end
+    val = !( File.directory?( File.join( @base_dir, path ) ) ) 
+    debug "  return #{val}"
 
-      return files
-   end
-  
-   def file?(path)
-      #If path ends with metadata_never_index it is a file
-      if path =~ /metadata_never_index$/
-         return true
-      end
+    return val
+  end
 
-      return (not File.directory?( @base_dir + path ))
-   end
+  def directory?( path )
+    debug "directory?( #{path} )"
+    val = File.directory?( File.join( @base_dir, path ) )
+    debug "  return #{val}"
+    return val
+  end
 
-   def directory?(path)
-      File.directory?(@base_dir + path)
-   end
-  
-   def read_file(path)
-      
-      #puts "read file #{path}"
-      if File.exists?( @base_dir + path )
-         return File.new(@base_dir + path , "r").read
-      end
-      return "ERROR, file not found\n"
+  def read_file( path )
+    debug "read_file( #{path} )" 
+    if File.exists?( File.join( @base_dir, path ) )
+      return File.new( File.join( @base_dir, path ) , "r").read
+    end
+    return "ERROR, file not found\n"
 
-   end
+  end
 
 
-   def size(path)
-      if File.exists?( @base_dir + path )
-         return File.size( @base_dir + path )
-      else
-         return 16
-      end
-   end
+  def size( path )
+    debug "size( #{path} )" 
+    #if File.exists?( @base_dir + path )
+      return File.size( File.join( @base_dir, path ) )
+    #else
+    #  return 16
+    #end
+  end
 end
 
 
 if $0 == __FILE__
 
-   options    = RFuseMergedFSOpts.parse(ARGV)
-   filesystem = RFuseMergedFS.new( options )
-   FuseFS.set_root( filesystem )
+  options    = RFuseMergedFSOpts.parse(ARGV)
+  filesystem = RFuseMergedFS.new( options )
+  FuseFS.set_root( filesystem )
 
-   # Mount under a directory given on the command line.
-   FuseFS.mount_under options.mountpoint
-   FuseFS.run
+  # Mount under a directory given on the command line.
+  FuseFS.mount_under options.mountpoint
+  FuseFS.run
 end
 
