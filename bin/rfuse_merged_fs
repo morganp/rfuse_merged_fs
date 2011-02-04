@@ -1,6 +1,10 @@
 #!/usr/bin/env ruby
 
 require 'rubygems'
+
+rfuse_merged_dir = File.expand_path( File.join( File.dirname(__FILE__), '..', 'lib') )
+$LOAD_PATH.unshift(rfuse_merged_dir) unless $LOAD_PATH.include?(rfuse_merged_dir)
+
 require 'rfuse_merged_fs'
 require 'rfuse_merged_fs_opts'
 
